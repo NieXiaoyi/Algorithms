@@ -2,18 +2,24 @@ package main
 
 import (
 	"fmt"
+	"slices"
 
-	digraph "com.algorithms/graph/2_digraph"
+	digraph "com.algorithms/graph/3_digraph"
 )
 
-// 将后序遍历代码增加稍加改造，即可得到有向图的环检测代码
-func checkring(g *digraph.Graph) bool {
+/* 输出一幅图的拓扑排序数组
+** 拓扑排序定义：原图中如果B顶点在A顶点后面，那么在拓扑排序数组中，B也应当在A后面
+** 如果有向图有环，则无法进行拓扑排序，输出空数组即可
+ */
+
+// 将后序遍历代码及环检测代码结合，即可得到有向图的拓扑排序代码
+func topologysort(g *digraph.Graph) []int {
 	path := make([]int, 0)
 	inpath := make([]bool, g.VertexNum())
 	visited := make([]bool, g.VertexNum())
 
-	var dfs func(g *digraph.Graph, start int) bool
-	dfs = func(g *digraph.Graph, start int) bool {
+	var checkring func(g *digraph.Graph, start int) bool
+	checkring = func(g *digraph.Graph, start int) bool {
 		// visited的值只会在本轮dfs时才会设为true，所有如果visited[start]为true，说明本次搜索已经访问过该节点了，必然存在环
 		if visited[start] {
 			return true
@@ -26,7 +32,7 @@ func checkring(g *digraph.Graph) bool {
 
 		visited[start] = true
 		for _, next := range g.Adj(start) {
-			if dfs(g, next) {
+			if checkring(g, next) {
 				return true
 			}
 		}
@@ -42,12 +48,13 @@ func checkring(g *digraph.Graph) bool {
 		if inpath[v] {
 			continue
 		}
-		if dfs(g, v) {
-			return true
+		if checkring(g, v) {
+			return []int{}
 		}
 	}
 
-	return false
+	slices.Reverse(path)
+	return path
 }
 
 func main() {
@@ -57,7 +64,7 @@ func main() {
 	g1.AddEdge(4, 5)
 	g1.AddEdge(4, 1)
 	g1.AddEdge(3, 0)
-	fmt.Println(checkring(g1))
+	fmt.Println(topologysort(g1))
 
 	g2 := digraph.NewGraph(6)
 	g2.AddEdge(2, 3)
@@ -66,5 +73,5 @@ func main() {
 	g2.AddEdge(4, 1)
 	g2.AddEdge(3, 0)
 	g2.AddEdge(1, 3)
-	fmt.Println(checkring(g2))
+	fmt.Println(topologysort(g2))
 }

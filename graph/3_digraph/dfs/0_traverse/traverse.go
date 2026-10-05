@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	digraph "com.algorithms/graph/2_digraph"
+	digraph "com.algorithms/graph/3_digraph"
 )
 
 func preorder_traverse(g *digraph.Graph, start int) []int {
